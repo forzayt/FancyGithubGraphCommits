@@ -22,36 +22,40 @@ const askCommitCount = () => {
 
 const makeCommits = async (totalCommits) => {
   if (totalCommits <= 0) {
-    console.log("Done committing, pushing...");
+    console.log("✅ Done committing. Pushing to GitHub...");
     await git.push();
     return;
   }
 
-  const x = random.int(0, 54); // weeks
-  const y = random.int(0, 6);  // days
+  const x = random.int(0, 52); // weeks ago (within the last 1 year)
+  const y = random.int(0, 6);  // extra days
 
   const baseDate = moment()
-    .subtract(1, "y")
-    .add(1, "d")
-    .add(x, "w")
-    .add(y, "d");
+    .subtract(x, "weeks")
+    .subtract(y, "days");
 
-  const commitsToday = random.int(1, 5); // Do 1 to 5 commits per day
+  const commitsToday = random.int(1, 5); // 1 to 5 commits today
 
   for (let i = 0; i < commitsToday && totalCommits > 0; i++) {
-    const date = baseDate.clone().add(i, 's').format(); // Add a few seconds to each
+    const date = baseDate
+      .clone()
+      .hour(random.int(9, 17)) // Between 9am and 5pm
+      .minute(random.int(0, 59))
+      .second(i * 10)
+      .format();
+
     const data = { date };
 
-    console.log(`Commit #${totalCommits} on ${date}`);
+    console.log(`📝 Commit #${totalCommits} on ${date}`);
 
     await new Promise((res, rej) => {
       jsonfile.writeFile(path, data, async () => {
         try {
           await git.add([path]);
-          await git.commit(date, undefined, { "--date": date });
+          await git.commit(`Commit on ${date}`, undefined, { "--date": date });
           res();
         } catch (err) {
-          console.error("Git error:", err);
+          console.error("❌ Git error:", err);
           rej(err);
         }
       });
@@ -60,7 +64,7 @@ const makeCommits = async (totalCommits) => {
     totalCommits--;
   }
 
-  // Recursively continue for the next day
+  // Recurse for next batch
   await makeCommits(totalCommits);
 };
 
