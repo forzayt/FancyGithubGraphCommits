@@ -21,51 +21,48 @@ const askCommitCount = () => {
 };
 
 const makeCommits = async (totalCommits) => {
-  if (totalCommits <= 0) {
-    console.log("✅ Done committing. Pushing to GitHub...");
-    await git.push();
-    return;
-  }
+  // Start 1 year ago
+  let date = moment().subtract(1, "year");
 
-  const x = random.int(0, 52); // weeks ago (within the last 1 year)
-  const y = random.int(0, 6);  // extra days
+  while (date.isBefore(moment()) && totalCommits > 0) {
+    // Decide how many commits to make this day
+    const commitsToday = random.int(1, 5);
 
-  const baseDate = moment()
-    .subtract(x, "weeks")
-    .subtract(y, "days");
+    for (let i = 0; i < commitsToday && totalCommits > 0; i++) {
+      const commitDate = date
+        .clone()
+        .hour(random.int(9, 17)) // business hours
+        .minute(random.int(0, 59))
+        .second(i * 10)
+        .format();
 
-  const commitsToday = random.int(1, 5); // 1 to 5 commits today
+      const data = { date: commitDate };
 
-  for (let i = 0; i < commitsToday && totalCommits > 0; i++) {
-    const date = baseDate
-      .clone()
-      .hour(random.int(9, 17)) // Between 9am and 5pm
-      .minute(random.int(0, 59))
-      .second(i * 10)
-      .format();
+      console.log(`📝 Commit #${totalCommits} on ${commitDate}`);
 
-    const data = { date };
-
-    console.log(`📝 Commit #${totalCommits} on ${date}`);
-
-    await new Promise((res, rej) => {
-      jsonfile.writeFile(path, data, async () => {
-        try {
-          await git.add([path]);
-          await git.commit(`Commit on ${date}`, undefined, { "--date": date });
-          res();
-        } catch (err) {
-          console.error("❌ Git error:", err);
-          rej(err);
-        }
+      await new Promise((res, rej) => {
+        jsonfile.writeFile(path, data, async () => {
+          try {
+            await git.add([path]);
+            await git.commit(`Commit on ${commitDate}`, undefined, {
+              "--date": commitDate
+            });
+            res();
+          } catch (err) {
+            console.error("❌ Git error:", err);
+            rej(err);
+          }
+        });
       });
-    });
 
-    totalCommits--;
+      totalCommits--;
+    }
+
+    date.add(1, "day"); // move to next day
   }
 
-  // Recurse for next batch
-  await makeCommits(totalCommits);
+  console.log("✅ All commits done. Pushing to GitHub...");
+  await git.push();
 };
 
 askCommitCount();
