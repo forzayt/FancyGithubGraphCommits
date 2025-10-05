@@ -21,24 +21,29 @@ const askCommitCount = () => {
 };
 
 const makeCommits = async (totalCommits) => {
-  // Start 1 year ago
-  let date = moment().subtract(1, "year");
+  const startDate = moment().subtract(1, "year");
+  const endDate = moment();
+  const totalDays = endDate.diff(startDate, "days");
+  
+  // Calculate average commits per day (to distribute evenly)
+  const avgCommitsPerDay = Math.max(1, Math.floor(totalCommits / totalDays));
 
-  while (date.isBefore(moment()) && totalCommits > 0) {
-    // Decide how many commits to make this day
-    const commitsToday = random.int(1, 5);
+  let remainingCommits = totalCommits;
 
-    for (let i = 0; i < commitsToday && totalCommits > 0; i++) {
-      const commitDate = date
-        .clone()
-        .hour(random.int(9, 17)) // business hours
+  while (startDate.isBefore(endDate)) {
+    // Randomize commits a bit for natural variation
+    const commitsToday = random.int(0, avgCommitsPerDay * 2);
+
+    for (let i = 0; i < commitsToday && remainingCommits > 0; i++) {
+      const commitDate = startDate.clone()
+        .hour(random.int(9, 17))
         .minute(random.int(0, 59))
-        .second(i * 10)
+        .second(random.int(0, 59))
         .format();
 
       const data = { date: commitDate };
 
-      console.log(`📝 Commit #${totalCommits} on ${commitDate}`);
+      console.log(`📝 Commit #${remainingCommits} on ${commitDate}`);
 
       await new Promise((res, rej) => {
         jsonfile.writeFile(path, data, async () => {
@@ -55,10 +60,10 @@ const makeCommits = async (totalCommits) => {
         });
       });
 
-      totalCommits--;
+      remainingCommits--;
     }
 
-    date.add(1, "day"); // move to next day
+    startDate.add(1, "day");
   }
 
   console.log("✅ All commits done. Pushing to GitHub...");
