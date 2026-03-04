@@ -1,38 +1,35 @@
 import jsonfile from "jsonfile";
 import simpleGit from "simple-git";
-import moment from "moment";
 
-const path = "./data.json";
 const git = simpleGit();
+const path = "./data.json";
 
 async function makeCommit() {
-  const date = moment().format();
-
   const data = {
-    date: date
+    date: new Date().toISOString()
   };
-
-  console.log("Commit:", date);
 
   await jsonfile.writeFile(path, data);
 
   await git.add([path]);
 
-  await git.commit(`commit ${date}`);
+  await git.commit(`commit ${new Date().toISOString()}`);
 
-  await git.push();
+  console.log("Commit created");
 }
 
 async function start() {
-  while (true) {
-    try {
-      await makeCommit();
-    } catch (err) {
-      console.log("Error:", err);
-    }
 
-    await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second
+  // create 5 commits per workflow run
+  for (let i = 0; i < 5; i++) {
+
+    await makeCommit();
+
+    // wait 10 seconds between commits
+    await new Promise(r => setTimeout(r, 10000));
+
   }
+
 }
 
 start();
