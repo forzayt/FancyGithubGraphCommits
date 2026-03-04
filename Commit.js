@@ -1,73 +1,38 @@
 import jsonfile from "jsonfile";
-import moment from "moment";
 import simpleGit from "simple-git";
-import random from "random";
-import readline from "readline";
+import moment from "moment";
 
 const path = "./data.json";
 const git = simpleGit();
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+async function makeCommit() {
+  const date = moment().format();
 
-const askCommitCount = () => {
-  rl.question("How many commits do you want to make? (Default: 100): ", async (input) => {
-    const count = parseInt(input, 10) || 100;
-    await makeCommits(count);
-    rl.close();
-  });
-};
+  const data = {
+    date: date
+  };
 
-const makeCommits = async (totalCommits) => {
-  const startDate = moment().subtract(1, "year");
-  const endDate = moment();
-  const totalDays = endDate.diff(startDate, "days");
-  
-  // Calculate average commits per day (to distribute evenly)
-  const avgCommitsPerDay = Math.max(1, Math.floor(totalCommits / totalDays));
+  console.log("Commit:", date);
 
-  let remainingCommits = totalCommits;
+  await jsonfile.writeFile(path, data);
 
-  while (startDate.isBefore(endDate)) {
-    // Randomize commits a bit for natural variation
-    const commitsToday = random.int(0, avgCommitsPerDay * 2);
+  await git.add([path]);
 
-    for (let i = 0; i < commitsToday && remainingCommits > 0; i++) {
-      const commitDate = startDate.clone()
-        .hour(random.int(9, 17))
-        .minute(random.int(0, 59))
-        .second(random.int(0, 59))
-        .format();
+  await git.commit(`commit ${date}`);
 
-      const data = { date: commitDate };
+  await git.push();
+}
 
-      console.log(`📝 Commit #${remainingCommits} on ${commitDate}`);
-
-      await new Promise((res, rej) => {
-        jsonfile.writeFile(path, data, async () => {
-          try {
-            await git.add([path]);
-            await git.commit(`Commit on ${commitDate}`, undefined, {
-              "--date": commitDate
-            });
-            res();
-          } catch (err) {
-            console.error("❌ Git error:", err);
-            rej(err);
-          }
-        });
-      });
-
-      remainingCommits--;
+async function start() {
+  while (true) {
+    try {
+      await makeCommit();
+    } catch (err) {
+      console.log("Error:", err);
     }
 
-    startDate.add(1, "day");
+    await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second
   }
+}
 
-  console.log("✅ All commits done. Pushing to GitHub...");
-  await git.push();
-};
-
-askCommitCount();
+start();
