@@ -3,7 +3,7 @@
 
 Make your GitHub contribution graph look like a beautiful forest of **green squares** 🌳🌳🌳 by generating backdated commits with style!
 
-![GitHub Contribution Graph](https://github-contributions-api.deno.dev/vishnu1100.svg?bg=black&font-color=ffffff&scheme=github)
+![GitHub Contribution Graph](https://github-contributions-api.deno.dev/forzayt.svg?bg=black&font-color=ffffff&scheme=github)
 
 ---
 
@@ -31,7 +31,7 @@ Make your GitHub contribution graph look like a beautiful forest of **green squa
    - Pushes everything to your GitHub!
 
 3. ✅ You get something like this:
-   <img src="https://github-contributions-api.deno.dev/vishnu1100.svg?bg=black&font-color=ffffff&scheme=github" width="600"/>
+   <img src="https://github-contributions-api.deno.dev/forzayt.svg?bg=black&font-color=ffffff&scheme=github" width="600"/>
 
 ---
 
@@ -39,7 +39,7 @@ Make your GitHub contribution graph look like a beautiful forest of **green squa
 
 ### 1. Clone the Repo
 ```bash
-git clone https://github.com/vishnu1100/FancyGithubGraphCommits.git
+git clone https://github.com/forzayt/FancyGithubGraphCommits.git
 cd FancyGithubGraphCommits
 ```
 
@@ -98,7 +98,7 @@ This is just for fun or aesthetic use! Don’t use fake contributions to mislead
 
 ## 📸 Result Sample
 
-![Contribution Graph](https://github-contributions-api.deno.dev/vishnu1100.svg?bg=black&font-color=ffffff&scheme=github)
+![Contribution Graph](https://github-contributions-api.deno.dev/forzayt.svg?bg=black&font-color=ffffff&scheme=github)
 
 ---
 
